@@ -2,10 +2,12 @@ package com.company.Customer.entity;
 
 
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 
 @Entity
@@ -17,15 +19,16 @@ public class Account implements Serializable {
 	private static final long serialVersionUID = 1L;
 		@Id
 	    @GeneratedValue()
-	    public Integer account_id;
+	    public Integer accountId;
 	   // @OneToOne(fetch = FetchType.EAGER, optional = false,cascade=CascadeType.ALL)
 	    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
 	    @JsonBackReference
-		@JoinColumn(name = "customer_id") 
+		@JoinColumn(name = "customerId") 
 	    private Customer customer;
+	    @JsonManagedReference
 	    
-		@OneToOne(mappedBy = "account")
-		private Transaction transaction;
+	    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "account")
+	    private Set<Transaction> transaction;
 		
 	    public Integer amount;
 	  
@@ -35,19 +38,19 @@ public class Account implements Serializable {
 		//	super();
 			// TODO Auto-generated constructor stub
 		}
-	    public Account(Integer account_id, Customer customer, Integer amount, Integer tax, Integer charges) {
+	    public Account(Integer accountId, Customer customer, Integer amount, Integer tax, Integer charges) {
 			super();
-			this.account_id = account_id;
+			this.accountId = accountId;
 			this.customer = customer;
 			this.amount = amount;
 			this.tax = tax;
 			this.charges = charges;
 		}
-		public Integer getAccount_id() {
-			return account_id;
+		public Integer getAccountId() {
+			return accountId;
 		}
 		public void setAccount_id(Integer account_id) {
-			this.account_id = account_id;
+			this.accountId = account_id;
 		}
 		public Customer getCustomer() {
 			return customer;

@@ -19,35 +19,6 @@ public interface LoginRepository extends JpaRepository<Customer, String>{
 	Customer findByPin(Integer pin);
 
 	
-
-
-
-
-
-
-
-
-	
-
-
-
-
-	
-
-	
-
-	
-
-
-
-	
-
-
-
-
-
-	
-
-
+	String findByAccountNumber(String accountNumber);
 
 }

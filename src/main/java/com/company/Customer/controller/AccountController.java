@@ -24,6 +24,7 @@ import com.company.Customer.repository.AccountRepository;
 import com.company.Customer.repository.CustomerRepository;
 import com.company.Customer.repository.LoginRepository;
 import com.company.Customer.repository.TransactionRepository;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -38,14 +39,17 @@ public class AccountController {
 	CustomerRepository customerRepository;
 	@Autowired
 	TransactionRepository transactionRepository;
+	 @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+     private Date t_time;
+	 //set date
+	  DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+	  Date dateobj = new Date();
+	 String dateOne=(df.format(dateobj));
 	@GetMapping("/balance/{id}")
-	//@RequestMapping(value = "/balance/{id}", method = RequestMethod.GET, consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE,"application/x-www-form-urlencoded"}, produces = MediaType.APPLICATION_JSON_VALUE)
-	//@GetMapping(value = "/balance/{id}")
-	//public ResponseEntity<?>  depositFund(@PathVariable("id") Integer account_id,@RequestBody Account account, Customer customerJson,String colm) {
 	@Transactional
-	public ResponseEntity<?> checkBalance(@PathVariable("id") Integer customer_id,@ModelAttribute  Customer customerJson,Account account,Transaction transaction) {
+	public ResponseEntity<?> checkBalance(@PathVariable("id") Integer customerId,@ModelAttribute  Customer customerJson,Account account,Transaction transaction) {
 		
-		 Account cs=accountRepository.getOne(customer_id);
+		 Account cs=accountRepository.getOne(customerId);
 		
 		// Customer cus=loginRepository.getOne(C)
 		 Gson gson = new Gson();
@@ -63,24 +67,87 @@ public class AccountController {
 		//return	new ResponseEntity<>("balance" +amount, HttpStatus.OK);
 		 
 	}
+	@GetMapping("/Statement/{id}")
+	@Transactional
+	public ResponseEntity<?> miniStatement(@PathVariable("id") Integer customerId,@ModelAttribute  Customer customerJson,Account account,Transaction transaction) {
+		//
+		 Account cs=accountRepository.getOne(customerId);
+		
+		// Customer cus=loginRepository.getOne(C)
+		 Gson gson = new Gson();
+		Integer cusId=cs.getCustomer().getCustomerId();
+		String name=cs.getCustomer().getUsername();
+		Integer amount= cs.getAmount();
+		Integer charges =cs.getCharges();
 	
+		System.out.println("????????????????????"+name);
+		JsonObject responseObj = new JsonObject();
+		responseObj.addProperty("response_status", true);
+		responseObj.addProperty("response_message", "success");
+		responseObj.addProperty("customer_id", cusId);
+		responseObj.addProperty("username", name);
+		responseObj.addProperty("amount", amount);
+		responseObj.addProperty("charges", charges);
+		//responseObj.addProperty("response_customer", cust1);
+		//responseObj.addProperty("pin", pin);
+		return ResponseEntity.ok(gson.toJson(responseObj));
+		//return	new ResponseEntity<>("balance" +amount, HttpStatus.OK);
+		 
+	}
+	@RequestMapping (value="/fundDeposit/{id}" ,method = RequestMethod.PUT ,consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE,"application/x-www-form-urlencoded"},produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> fundDepositr(@PathVariable("id")Integer customerId, @ModelAttribute Account account,Customer customer,Transaction transaction){
+		//sender
+		Account customer1=accountRepository.getOne(customerId);
+		Gson gson = new Gson();
+        Integer custId=customer1.getCustomer().getCustomerId();
+		String accnoR=customer.getAccountNumber();//Account no.ofReceiver
+		Customer c2=customerRepository.findByAccountNumber(customer.setAccountNumber(accnoR));
+		Integer amountS=customer1.getAmount();//Sender initial db amount
+		String username=customer1.getCustomer().getUsername();
+		Integer amountR=account.getAmount();//amount being deposited
+		Integer total=amountS+amountR;//balance after deposit
+		customer1.setAmount(total);
+	                        	//Set transaction
+								String d = "deposit";
+								transaction.setCustomerId(custId);
+							    transaction.setAmount(amountR);
+							    transaction.setAccountBalance(total);
+							    transaction.setDate(dateOne);
+							    transaction.setUsername(username);
+							    transaction.setTrasactionType(d);
+							   
+							    transactionRepository.save(transaction);
+		accountRepository.save(customer1);
+		JsonObject responseObj = new JsonObject();
+		responseObj.addProperty("response_total", total);
+		return ResponseEntity.ok(gson.toJson(responseObj));
+		
+	}
+		
 	//CashWithdrawal
 	@RequestMapping (value="/cashWithdrawal/{id}" ,method = RequestMethod.PUT ,consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE,"application/x-www-form-urlencoded"},produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> cashWithdrawal(@PathVariable("id")Integer customer_id, @ModelAttribute Account account,Customer customer,Transaction transaction){
+	public ResponseEntity<?> cashWithdrawal(@PathVariable("id")Integer customerId, @ModelAttribute Account account,Customer customer,Transaction transaction){
+		// Customer acc=loginRepository.findById(customer_id);
+		Account acc=accountRepository.getOne(customerId);
 		Gson gson = new Gson();
 		JsonObject responseObj = new JsonObject();
-		Integer pinf = customer.getPin();//reqObj.get("name").getAsString();
-		Customer pins=loginRepository.findByPin(customer.getPin());
-		System.out.println(pins);
+		
+		//account number verification
+	    String accN = customer.getAccountNumber();//reqObj.get("name").getAsString();
+	    String accNo=acc.getCustomer().getAccountNumber();
+	    Integer customer_Id=acc.getCustomer().getCustomerId();
+//		String accNo=loginRepository.findByAccountNumber(customer.getAccountNumber());
+		System.out.println(accN);
 		Integer tax=3;
 		Integer charges=1;
+		Integer totalCharges=tax+charges;//total charges incurred
 		Integer amount=account.getAmount();//amount to withdraw
-		Account custAcc=accountRepository.getOne(customer_id);
-		String acccId=custAcc.getCustomer().getUsername();
+		//Account custAcc=accountRepository.getOne(customer_id);
+		String acccId=acc.getCustomer().getUsername();
 		String s = "withdraw";
-		String transactionType;
+		
 		      
-		Integer dbAmount= custAcc.getAmount();
+		Integer dbAmount= acc.getAmount();
 
 		if(dbAmount>amount ) {
 			Integer total=dbAmount-amount;
@@ -89,28 +156,25 @@ public class AccountController {
 				Integer dbBalance1=total-charges;
 				if(dbBalance1>tax) {
 					 Integer dbTotal=dbBalance1-tax;
-					  Integer btotal=custAcc.setAmount(dbTotal);
-					  Integer btax=custAcc.setTax(tax);
-					  Integer bcharges=custAcc.setCharges(charges);
+					  Integer btotal=acc.setAmount(dbTotal);
+					  Integer btax=acc.setTax(tax);
+					  Integer bcharges=acc.setCharges(charges);
 					                   // transaction.getAccount().setAccount_id(acccId);
-					  //set date
-					  DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-					  Date dateobj = new Date();
-					 String dateOne=(df.format(dateobj));
-					  
+					 //set transaction
+					                    transaction.setCustomerId(customer_Id);
 					                    transaction.setAmount(amount);
 					                    transaction.setUsername(acccId);
 					                    transaction.setTrasactionType(s);
-					                    transaction.setCharges(bcharges);
+					                    transaction.setCharges(totalCharges);
 					                    transaction.setAccountBalance(dbTotal);
 					                    transaction.setDate(dateOne);
 					                    transactionRepository.save(transaction);
-					  accountRepository.save(custAcc);
+					  accountRepository.save(acc);
 					 //Transaction 
 					 
 						responseObj.addProperty("response_status", true);
 						responseObj.addProperty("response_message", "success");
-						responseObj.addProperty("response_pin", pinf);
+						responseObj.addProperty("response_pin", accNo);
 						responseObj.addProperty("response_tax", btax);
 						responseObj.addProperty("response_charges", bcharges);
 						responseObj.addProperty("response_balance", btotal);
@@ -128,9 +192,9 @@ public class AccountController {
 	}
 	
 	@RequestMapping (value="/fundTransfer/{id}" ,method = RequestMethod.PUT ,consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE,"application/x-www-form-urlencoded"},produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> fundTransfer(@PathVariable("id")Integer customer_id, @ModelAttribute Account account,Customer customer){
+	public ResponseEntity<?> fundTransfer(@PathVariable("id")Integer customerId, @ModelAttribute Account account,Customer customer){
 		//sender
-		Account customer1=accountRepository.getOne(customer_id);
+		Account customer1=accountRepository.getOne(customerId);
 		Gson gson = new Gson();
 		
 //		String accnoF=customer.getAccount_number();

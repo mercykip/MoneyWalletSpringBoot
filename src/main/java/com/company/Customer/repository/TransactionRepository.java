@@ -9,4 +9,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
 
 	void save(Account account);
 
+
+
+	
+
+
+
+
+
+
+
+	
+
 }

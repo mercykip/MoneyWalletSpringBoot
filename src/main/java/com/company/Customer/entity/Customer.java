@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.*;
 import javax.persistence.ManyToMany;
@@ -23,58 +24,57 @@ import org.springframework.lang.NonNull;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-
-
-
-
-
-//import org.springframework.security.core.GrantedAuthority;
-
-
-
 @Entity
 @Table(name = "customer")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Customer implements java.io.Serializable, Collection<Role>{
-	  @Id
+public class Customer implements java.io.Serializable{
+	  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	
-	   private Integer customer_id;
-	 @NonNull
+	   private Integer customerId;
 	    private String customerName;
-	 @NonNull
-	// private Roles role;
-//	 @Size(min = 6, max = 6)
-	    private Integer  nationalId;
-	 @NonNull
-//	 @Size(min = 2, max =4 )
 	    private String accountNumber;
-	 @NonNull
 	    private String username;
-	 @NonNull
-		private String gender;
-	 @NonNull
-	 @Email 
 	    private String email;
-	 @NonNull
-//	 @Size(min = 10, max = 13)
-		private Integer phoneNumber;
-	 @NonNull
-	    private String address;
-	 @NonNull
-//	 @Size(min = 4, max = 6)
-	    private Integer pin;
-	 
-//	 @Size(min = 4, max = 6)
-	    private String password;
-//	 @Size(min = 4, max = 6)
-	 @NonNull
-	    private Integer confirmPin;
-	 @JsonManagedReference
-		@OneToOne(mappedBy = "customer")
-		  private Account account;
+	    private String pin;
+	    private String confirmPin;
+//		private String gender;
+//	    private String  nationalId;
+//		private Integer phoneNumber;
+//	    private String address;
+//	    private String password;
+	    // user roles
+	    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+	    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "customerId"))
+	    @Enumerated(EnumType.STRING)
+	    private Set<Role> roles;
 	    
-//		@OneToOne(mappedBy = "customer")
+	
+
+		@JsonManagedReference
+		@OneToOne(mappedBy = "customer")
+	    private Account account;
+		  // if user is admin
+	    public boolean isAdmin() {
+	        return roles.contains(Role.ADMIN);
+	    }
+
+	    
+	public Set<Role> getRoles() {
+			return roles;
+		}
+
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
+
+		//		@OneToOne(mappedBy = "customer")
 //		  private Transaction transaction;
 //	    
 	    public Account getAccount() {
@@ -89,32 +89,44 @@ public class Customer implements java.io.Serializable, Collection<Role>{
 		public Customer() {
 		
 		}
+		  
+		public Customer(Customer customer) {
+					this.customerName=customer.getCustomerName();
+					this.email=customer.getEmail();
+					this.username=customer.getUsername();
+					this.roles=customer.getRoles();
+					this.confirmPin=customer.getConfirmPin();
+					this.confirmPin=customer.getPin();
+					this.customerId=customer.getCustomerId();
+				}
 
-		public Customer(Integer customer_id, String customerName, Integer nationalId, String username,String accountNumber, String gender,
-				String email, Integer phoneNumber, String address, Integer pin, Integer passsword,Integer confirmPin) {
+		public Customer(Integer customerId, String customerName, String nationalId, String username,String accountNumber, String gender,
+				String email, Integer phoneNumber, String address, String pin, String passsword,String confirmPin) {
 			super();
-			this.customer_id = customer_id;
+			this.customerId = customerId;
 			this.customerName = customerName;
-			this.nationalId = nationalId;
 			this.username = username;
 			this.accountNumber = accountNumber;
-			this.gender = gender;
-			this.email = email;
-			this.phoneNumber = phoneNumber;
-			this.address = address;
-			this.pin = pin;
-			this.password = password;
+			this.email = email;	
+	        this.pin = pin;
 			this.confirmPin = confirmPin;
+//			this.gender = gender;
+//			this.nationalId = nationalId;
+//			this.phoneNumber = phoneNumber;
+//			this.address = address;
+		
 		}
 	    
 	    
-	    
-		public Integer getCustomer_id() {
-			return customer_id;
+	  
+
+
+		public Integer getCustomerId() {
+			return customerId;
 		}
 
-		public void setCustomer_id(Integer customer_id) {
-			this.customer_id = customer_id;
+		public void setCustomer_id(Integer customerId) {
+			this.customerId = customerId;
 		}
 		
 		public String getAccountNumber() {
@@ -127,14 +139,14 @@ public class Customer implements java.io.Serializable, Collection<Role>{
 				return this.accountNumber = accountNumber;
 			}
 		
-		public String getPassword() {
-			return password;
-		}
-
-
-		public void setPassword(String password) {
-			this.password = password;
-		}
+//		public String getPassword() {
+//			return password;
+//		}
+//
+//
+//		public void setPassword(String password) {
+//			this.password = password;
+//		}
 
 
 		public String getCustomerName() {
@@ -145,13 +157,7 @@ public class Customer implements java.io.Serializable, Collection<Role>{
 			this.customerName = customerName;
 		}
 
-		public Integer getNationalId() {
-			return nationalId;
-		}
-
-		public void setNationalId(Integer nationalId) {
-			this.nationalId = nationalId;
-		}
+	
 
 		public String getUsername() {
 			return username;
@@ -160,15 +166,7 @@ public class Customer implements java.io.Serializable, Collection<Role>{
 		public void setUsername(String username) {
 			this.username = username;
 		}
-
-		public String getGender() {
-			return gender;
-		}
-
-		public void setGender(String gender) {
-			this.gender = gender;
-		}
-
+		
 		public String getEmail() {
 			return email;
 		}
@@ -177,162 +175,55 @@ public class Customer implements java.io.Serializable, Collection<Role>{
 			return this.email = email;
 		}
 
-		public Integer getPhoneNumber() {
-			return phoneNumber;
-		}
+	
 
-		public void setPhoneNumber(Integer phoneNumber) {
-			this.phoneNumber = phoneNumber;
-		}
-
-		public String getAddress() {
-			return address;
-		}
-
-		public void setAddress(String address) {
-			this.address = address;
-		}
-
-		public Integer getPin() {
+		public String getPin() {
 			return pin;
 		}
 
-		public void setPin(Integer pin) {
+		public void setPin(String pin) {
 			this.pin = pin;
 		}
 
-		public Integer getConfirmPin() {
+		public String getConfirmPin() {
 			return confirmPin;
 		}
 
-		public void setConfirmPin(Integer confirmPin) {
+		public void setConfirmPin(String confirmPin) {
 			this.confirmPin= confirmPin;
 		}
 
-@ManyToMany(cascade=CascadeType.MERGE)
-@JoinTable(name="customer_role",
-joinColumns= {@JoinColumn(name="customer_id",referencedColumnName="customer_id")},
-inverseJoinColumns= {@JoinColumn(name="role_id",referencedColumnName="role_id")})
-private List<Role> roles;
-
-public List<Role> getRoles() {
-	return roles;
-}
-
-
-public void setRoles(List<Role> roles) {
-	this.roles = roles;
-}
-
+		
+		
+//		public String getNationalId() {
+//			return nationalId;
+//		}
 //
-//public Optional<Customer> orElseThrow(Object object) {
-//	// TODO Auto-generated method stub
-//	return null;
-//}
-
-
-public boolean isEnabled() {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public boolean add(Role arg0) {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public boolean addAll(Collection<? extends Role> arg0) {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public void clear() {
-	// TODO Auto-generated method stub
-	
-}
-
-
-@Override
-public boolean contains(Object arg0) {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public boolean containsAll(Collection<?> arg0) {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public boolean isEmpty() {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public Iterator<Role> iterator() {
-	// TODO Auto-generated method stub
-	return null;
-}
-
-
-@Override
-public boolean remove(Object arg0) {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public boolean removeAll(Collection<?> arg0) {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public boolean retainAll(Collection<?> arg0) {
-	// TODO Auto-generated method stub
-	return false;
-}
-
-
-@Override
-public int size() {
-	// TODO Auto-generated method stub
-	return 0;
-}
-
-
-@Override
-public Object[] toArray() {
-	// TODO Auto-generated method stub
-	return null;
-}
-
-
-@Override
-public <T> T[] toArray(T[] arg0) {
-	// TODO Auto-generated method stub
-	return null;
-}
-
-		
-	   
-		
-
-		
-		 
-	
+//		public void setNationalId(String nationalId) {
+//			this.nationalId = nationalId;
+//		}
+//
+//		public String getGender() {
+//			return gender;
+//		}
+//
+//		public void setGender(String gender) {
+//			this.gender = gender;
+//		}
+//		public Integer getPhoneNumber() {
+//			return phoneNumber;
+//		}
+//
+//		public void setPhoneNumber(Integer phoneNumber) {
+//			this.phoneNumber = phoneNumber;
+//		}
+//
+//		public String getAddress() {
+//			return address;
+//		}
+//
+//		public void setAddress(String address) {
+//			this.address = address;
+//		}
 
 }
