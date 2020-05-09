@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.company.Customer.entity.Role;
 import com.company.Customer.repository.LoginRepository;
 import com.company.Customer.service.CustomeUserDetailsService;
 
@@ -40,8 +41,16 @@ protected void	configure( HttpSecurity http) throws Exception{
 	  http.csrf().disable().authorizeRequests()
       .antMatchers("/").permitAll()
       .antMatchers(HttpMethod.POST,"/registration").permitAll()
+      .antMatchers(HttpMethod.POST,"/registrationAdmin").permitAll()
       .antMatchers(HttpMethod.POST, "/login").permitAll()
-      .antMatchers(HttpMethod.GET,"/view").permitAll()
+      .antMatchers(HttpMethod.POST, "/login").permitAll()
+      .antMatchers(HttpMethod.PUT, "/fundDeposit/**").permitAll()
+      .antMatchers(HttpMethod.PUT, "/cashWithdrawal/**").permitAll()
+      .antMatchers(HttpMethod.PUT, "/fundTransfer/**").permitAll()
+      .antMatchers(HttpMethod.GET, "/viewTransaction").permitAll()
+      .antMatchers(HttpMethod.GET,"/view/**").permitAll()
+      .antMatchers(HttpMethod.GET,"/miniStatement/**").permitAll()
+      .antMatchers(HttpMethod.GET,"/balance/**").permitAll()
       //.antMatchers(HttpMethod.GET,"/view").hasRole("USER")
        .antMatchers(HttpMethod.GET,"/exploreCourse").permitAll()
       .anyRequest().authenticated();

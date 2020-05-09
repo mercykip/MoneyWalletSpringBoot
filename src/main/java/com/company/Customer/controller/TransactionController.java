@@ -3,12 +3,11 @@ package com.company.Customer.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.company.Customer.entity.Customer;
 import com.company.Customer.entity.Transaction;
 import com.company.Customer.repository.TransactionRepository;
 import com.company.Customer.repository.TransactionnRepository;
@@ -21,6 +20,7 @@ TransactionRepository transactionRepository;
 TransactionnRepository  transactionnRepository;
 
 //Get all transactions
+
 @GetMapping("/viewTransaction")
 public List<Transaction> getAllCustomers(Transaction transaction)
 {
@@ -32,9 +32,6 @@ public List<Transaction> getAllCustomers(Transaction transaction)
 @GetMapping("/miniStatement/{id}")
 public List<Transaction> getAllTransaction(@PathVariable("id")Integer customerId,Transaction transaction)
 {
-	
-//	Transaction tnId=transactionnRepository.getOne(customerId);
-//	Integer ndi=tnId.getCustomerId();
 	List<Transaction> tb=transactionnRepository.findAllByCustomerId(customerId);
 	return tb;
 

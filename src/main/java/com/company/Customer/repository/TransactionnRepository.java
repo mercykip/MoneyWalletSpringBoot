@@ -10,14 +10,6 @@ public interface TransactionnRepository extends JpaRepository<Transaction, Integ
 
 	List<Transaction> findAllByCustomerId(Integer ndi);
 
-	
-
-	
-
-	
-
-	//List<Transaction> findAllById(Integer transaction_id);
-
 
 
 

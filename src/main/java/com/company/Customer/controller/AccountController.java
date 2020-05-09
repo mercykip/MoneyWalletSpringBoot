@@ -2,9 +2,6 @@ package com.company.Customer.controller;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,54 +40,44 @@ public class AccountController {
 	 //set date
 	  DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
 	  Date dateobj = new Date();
-	 String dateOne=(df.format(dateobj));
+	  String dateOne=(df.format(dateobj));
 	@GetMapping("/balance/{id}")
 	@Transactional
 	public ResponseEntity<?> checkBalance(@PathVariable("id") Integer customerId,@ModelAttribute  Customer customerJson,Account account,Transaction transaction) {
 		
 		 Account cs=accountRepository.getOne(customerId);
-		
-		// Customer cus=loginRepository.getOne(C)
 		 Gson gson = new Gson();
-		 String name=cs.getCustomer().getUsername();
-		Integer amount= cs.getAmount();
-		 System.out.println("????????????????????"+name);
+			 String name=cs.getCustomer().getUsername();
+			 Integer amount= cs.getAmount();
+			 System.out.println("????????????????????"+name);
 		JsonObject responseObj = new JsonObject();
-		responseObj.addProperty("response_status", true);
-		responseObj.addProperty("response_message", "success");
-		responseObj.addProperty("username", name);
-		responseObj.addProperty("amount", amount);
-		//responseObj.addProperty("response_customer", cust1);
-		//responseObj.addProperty("pin", pin);
+			responseObj.addProperty("response_status", true);
+			responseObj.addProperty("response_message", "success");
+			responseObj.addProperty("username", name);
+			responseObj.addProperty("amount", amount);
 		return ResponseEntity.ok(gson.toJson(responseObj));
-		//return	new ResponseEntity<>("balance" +amount, HttpStatus.OK);
 		 
 	}
 	@GetMapping("/Statement/{id}")
 	@Transactional
-	public ResponseEntity<?> miniStatement(@PathVariable("id") Integer customerId,@ModelAttribute  Customer customerJson,Account account,Transaction transaction) {
-		//
+	public ResponseEntity<?> miniStatement(@PathVariable("id") Integer customerId,@ModelAttribute  Customer customerJson,Account account,Transaction transaction) 
+	{
 		 Account cs=accountRepository.getOne(customerId);
-		
-		// Customer cus=loginRepository.getOne(C)
 		 Gson gson = new Gson();
-		Integer cusId=cs.getCustomer().getCustomerId();
-		String name=cs.getCustomer().getUsername();
-		Integer amount= cs.getAmount();
-		Integer charges =cs.getCharges();
-	
+			Integer cusId=cs.getCustomer().getCustomerId();
+			String name=cs.getCustomer().getUsername();
+			Integer amount= cs.getAmount();
+			Integer charges =cs.getCharges();
+		
 		System.out.println("????????????????????"+name);
 		JsonObject responseObj = new JsonObject();
-		responseObj.addProperty("response_status", true);
-		responseObj.addProperty("response_message", "success");
-		responseObj.addProperty("customer_id", cusId);
-		responseObj.addProperty("username", name);
-		responseObj.addProperty("amount", amount);
-		responseObj.addProperty("charges", charges);
-		//responseObj.addProperty("response_customer", cust1);
-		//responseObj.addProperty("pin", pin);
+			responseObj.addProperty("response_status", true);
+			responseObj.addProperty("response_message", "success");
+			responseObj.addProperty("customer_id", cusId);
+			responseObj.addProperty("username", name);
+			responseObj.addProperty("amount", amount);
+			responseObj.addProperty("charges", charges);
 		return ResponseEntity.ok(gson.toJson(responseObj));
-		//return	new ResponseEntity<>("balance" +amount, HttpStatus.OK);
 		 
 	}
 	@RequestMapping (value="/fundDeposit/{id}" ,method = RequestMethod.PUT ,consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_FORM_URLENCODED_VALUE,"application/x-www-form-urlencoded"},produces = MediaType.APPLICATION_JSON_VALUE)
@@ -99,13 +85,13 @@ public class AccountController {
 		//sender
 		Account customer1=accountRepository.getOne(customerId);
 		Gson gson = new Gson();
-        Integer custId=customer1.getCustomer().getCustomerId();
-		String accnoR=customer.getAccountNumber();//Account no.ofReceiver
-		Customer c2=customerRepository.findByAccountNumber(customer.setAccountNumber(accnoR));
-		Integer amountS=customer1.getAmount();//Sender initial db amount
-		String username=customer1.getCustomer().getUsername();
-		Integer amountR=account.getAmount();//amount being deposited
-		Integer total=amountS+amountR;//balance after deposit
+	        Integer custId=customer1.getCustomer().getCustomerId();
+//			String accnoR=customer.getAccountNumber();//Account no.ofReceiver
+//			Customer c2=customerRepository.findByAccountNumber(customer.setAccountNumber(accnoR));
+			Integer amountS=customer1.getAmount();//Sender initial db amount
+			String username=customer1.getCustomer().getUsername();
+			Integer amountR=account.getAmount();//amount being deposited
+			Integer total=amountS+amountR;//balance after deposit
 		customer1.setAmount(total);
 	                        	//Set transaction
 								String d = "deposit";
@@ -118,8 +104,8 @@ public class AccountController {
 							   
 							    transactionRepository.save(transaction);
 		accountRepository.save(customer1);
-		JsonObject responseObj = new JsonObject();
-		responseObj.addProperty("response_total", total);
+				JsonObject responseObj = new JsonObject();
+				responseObj.addProperty("response_total", total);
 		return ResponseEntity.ok(gson.toJson(responseObj));
 		
 	}
@@ -130,25 +116,18 @@ public class AccountController {
 		// Customer acc=loginRepository.findById(customer_id);
 		Account acc=accountRepository.getOne(customerId);
 		Gson gson = new Gson();
-		JsonObject responseObj = new JsonObject();
-		
 		//account number verification
 	    String accN = customer.getAccountNumber();//reqObj.get("name").getAsString();
 	    String accNo=acc.getCustomer().getAccountNumber();
 	    Integer customer_Id=acc.getCustomer().getCustomerId();
-//		String accNo=loginRepository.findByAccountNumber(customer.getAccountNumber());
 		System.out.println(accN);
 		Integer tax=3;
 		Integer charges=1;
 		Integer totalCharges=tax+charges;//total charges incurred
 		Integer amount=account.getAmount();//amount to withdraw
-		//Account custAcc=accountRepository.getOne(customer_id);
 		String acccId=acc.getCustomer().getUsername();
 		String s = "withdraw";
-		
-		      
 		Integer dbAmount= acc.getAmount();
-
 		if(dbAmount>amount ) {
 			Integer total=dbAmount-amount;
 			if(total>charges ) {
@@ -159,8 +138,7 @@ public class AccountController {
 					  Integer btotal=acc.setAmount(dbTotal);
 					  Integer btax=acc.setTax(tax);
 					  Integer bcharges=acc.setCharges(charges);
-					                   // transaction.getAccount().setAccount_id(acccId);
-					 //set transaction
+					   					 //set transaction
 					                    transaction.setCustomerId(customer_Id);
 					                    transaction.setAmount(amount);
 					                    transaction.setUsername(acccId);
@@ -171,16 +149,15 @@ public class AccountController {
 					                    transactionRepository.save(transaction);
 					  accountRepository.save(acc);
 					 //Transaction 
-					 
-						responseObj.addProperty("response_status", true);
-						responseObj.addProperty("response_message", "success");
-						responseObj.addProperty("response_pin", accNo);
-						responseObj.addProperty("response_tax", btax);
-						responseObj.addProperty("response_charges", bcharges);
-						responseObj.addProperty("response_balance", btotal);
-						System.out.println("amount"+amount+"dbamount"+dbAmount+"total "+dbTotal);
-						//return ResponseEntity.ok(gson.toJson(responseObj));
-						return ResponseEntity.ok(gson.toJson(responseObj));
+					  JsonObject responseObj = new JsonObject();
+							responseObj.addProperty("response_status", true);
+							responseObj.addProperty("response_message", "success");
+							responseObj.addProperty("response_pin", accNo);
+							responseObj.addProperty("response_tax", btax);
+							responseObj.addProperty("response_charges", bcharges);
+							responseObj.addProperty("response_balance", btotal);
+							System.out.println("amount"+amount+"dbamount"+dbAmount+"total "+dbTotal);
+					return ResponseEntity.ok(gson.toJson(responseObj));
 				
 				}
 			}

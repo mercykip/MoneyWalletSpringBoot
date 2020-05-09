@@ -7,13 +7,6 @@ import com.company.Customer.entity.Customer;
 
 public interface LoginRepository extends JpaRepository<Customer, String>{
 
-	
-//
-//	Customer findByPin(Integer pin);
-//
-//	//Customer findByUsername(String username);
-//	Customer findByUsernameAndPin(String username,String pin);
-
 	Customer findByUsername(String username);
 
 	Customer findByPin(Integer pin);

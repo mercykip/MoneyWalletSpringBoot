@@ -19,25 +19,19 @@ public class Account implements Serializable {
 	private static final long serialVersionUID = 1L;
 		@Id
 	    @GeneratedValue()
-	    public Integer accountId;
-	   // @OneToOne(fetch = FetchType.EAGER, optional = false,cascade=CascadeType.ALL)
-	    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+	    	public Integer accountId;
+	 	@OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
 	    @JsonBackReference
 		@JoinColumn(name = "customerId") 
-	    private Customer customer;
+	 		private Customer customer;
 	    @JsonManagedReference
-	    
 	    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "account")
-	    private Set<Transaction> transaction;
-		
-	    public Integer amount;
-	  
-		public Integer tax;
-	    public Integer charges;
-	    public Account() {
-		//	super();
-			// TODO Auto-generated constructor stub
-		}
+		    private Set<Transaction> transaction;
+		    public Integer amount;
+			public Integer tax;
+		    public Integer charges;
+		    public Account() {
+				}
 	    public Account(Integer accountId, Customer customer, Integer amount, Integer tax, Integer charges) {
 			super();
 			this.accountId = accountId;

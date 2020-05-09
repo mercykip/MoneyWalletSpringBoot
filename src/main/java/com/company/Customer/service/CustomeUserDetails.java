@@ -27,14 +27,6 @@ public class CustomeUserDetails extends Customer implements UserDetails{
 		// TODO Auto-generated constructor stub
 	}
 
-//	@Override
-//	public Collection<? extends GrantedAuthority> getAuthorities() {
-//	    return getRoles()
-//	     .stream()
-//	     .map(role-> new SimpleGrantedAuthority("ROLE_"+ role.getRole()))
-//	     .collect(Collectors.toList());
-//	    
-//	}
 
 	@Override
 	public String getPassword() {

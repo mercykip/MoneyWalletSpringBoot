@@ -20,9 +20,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity
 @Table(name = "transaction")
 public class Transaction implements java.io.Serializable{
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,23 +84,12 @@ public class Transaction implements java.io.Serializable{
 		public Integer setAmount(Integer amount) {
 			return this.amount = amount;
 		}
-	
-	//    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-//	@JoinColumn(name = "customer_id") 
-//    private Customer customer;
-//    
-//	public Customer getCustomer() {
-//		return customer;
-//	}
-//	public void setCustomer(Customer customer) {
-//		this.customer = customer;
-//	}
-	public Integer getTransactionId() {
-		return transactionId;
-	}
-	public void setTransactionId(Integer transactionId) {
-		this.transactionId = transactionId;
-	}
+		public Integer getTransactionId() {
+			return transactionId;
+		}
+		public void setTransactionId(Integer transactionId) {
+			this.transactionId = transactionId;
+		}
 	
 
 }
